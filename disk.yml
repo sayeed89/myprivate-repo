@@ -1,0 +1,19 @@
+---
+   - hosts: localhost
+
+     tasks:
+
+       - set_fact:
+             mount: "{{ ansible_mounts | first }}"
+
+       - set_fact:
+             disk_usage: "{{ mount.size_total|float * 0.50 }}"
+
+       - name: Ensure that free space on the tested volume is greater than 15%
+         assert:
+           that: "{{ mount.size_available < disk_usage }}"
+           msg: Disk space has reached 95% threshold
+         ignore_errors: true
+
+       - debug:
+             msg: "disk usage {{ disk_usage }}"
